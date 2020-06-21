@@ -19,3 +19,12 @@ services:
       - zookeeper
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: kafka-chat-app-db
+      POSTGRES_USER: kafka-chat-app
+      POSTGRES_PASSWORD: Secret
+    ports:
+      - "5433:5432"
