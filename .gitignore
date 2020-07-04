@@ -1,3 +1,4 @@
 /kafka-chat.iml
 .idea
 target
+/db/

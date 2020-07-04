@@ -3,6 +3,7 @@ package ru.iteco.training.kafkachat.entity;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -33,6 +34,12 @@ public class Message {
     private UUID authorUserId;
 
     /**
+     * Дата и время создания сообщения
+     */
+    @Column(name = "creation_timestamp", updatable = false, nullable = false)
+    private Date creationTimestamp;
+
+    /**
      * Текст сообщения
      */
     @Column(name = "text", columnDefinition="TEXT")
@@ -60,6 +67,14 @@ public class Message {
 
     public void setAuthorUserId(UUID authorUserId) {
         this.authorUserId = authorUserId;
+    }
+
+    public Date getCreationTimestamp() {
+        return creationTimestamp;
+    }
+
+    public void setCreationTimestamp(Date creationTimestamp) {
+        this.creationTimestamp = creationTimestamp;
     }
 
     public String getText() {

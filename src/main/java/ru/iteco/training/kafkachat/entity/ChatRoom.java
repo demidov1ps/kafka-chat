@@ -3,7 +3,7 @@ package ru.iteco.training.kafkachat.entity;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -24,14 +24,14 @@ public class ChatRoom {
     /**
      * Наименование чата
      */
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     /**
      * Дата и время создания чата
      */
     @Column(name = "creation_timestamp", updatable = false, nullable = false)
-    private LocalDateTime creationTimestamp;
+    private Date creationTimestamp;
 
     /**
      * Признак приватного чата.
@@ -67,11 +67,11 @@ public class ChatRoom {
         this.name = name;
     }
 
-    public LocalDateTime getCreationTimestamp() {
+    public Date getCreationTimestamp() {
         return creationTimestamp;
     }
 
-    public void setCreationTimestamp(LocalDateTime creationTimestamp) {
+    public void setCreationTimestamp(Date creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
 
@@ -81,5 +81,13 @@ public class ChatRoom {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public Boolean getPrivateChat() {
+        return privateChat;
+    }
+
+    public void setPrivateChat(Boolean privateChat) {
+        this.privateChat = privateChat;
     }
 }

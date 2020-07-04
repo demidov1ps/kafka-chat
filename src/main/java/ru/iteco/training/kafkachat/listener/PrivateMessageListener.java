@@ -10,6 +10,7 @@ public class PrivateMessageListener {
     @KafkaListener(topics = "topic.private.${user.login}")
     public void onMessage(ChatMessage message) {
         System.out.println(
-                String.format("Received private message from %s: %s", message.getAuthor(), message.getText()));
+                String.format("Received private message in chat %s from %s: %s",
+                        message.getChat(), message.getAuthor(), message.getText()));
     }
 }

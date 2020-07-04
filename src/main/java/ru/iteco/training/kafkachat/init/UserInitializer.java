@@ -1,4 +1,4 @@
-package ru.iteco.training.kafkachat.config;
+package ru.iteco.training.kafkachat.init;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;

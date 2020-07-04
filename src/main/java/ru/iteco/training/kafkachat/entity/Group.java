@@ -3,7 +3,7 @@ package ru.iteco.training.kafkachat.entity;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -31,7 +31,7 @@ public class Group {
      * Дата и время создания группы
      */
     @Column(name = "creation_timestamp", updatable = false, nullable = false)
-    private LocalDateTime creationTimestamp;
+    private Date creationTimestamp;
 
     /**
      * Признак актуальности группы.
@@ -58,11 +58,11 @@ public class Group {
         this.name = name;
     }
 
-    public LocalDateTime getCreationTimestamp() {
+    public Date getCreationTimestamp() {
         return creationTimestamp;
     }
 
-    public void setCreationTimestamp(LocalDateTime creationTimestamp) {
+    public void setCreationTimestamp(Date creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
 

@@ -10,6 +10,7 @@ public class BroadcastMessageListener {
     @KafkaListener(topics = "topic.broadcast", groupId = "${user.login}")
     public void onMessage(ChatMessage message) {
         System.out.println(
-                String.format("Received broadcast message from %s: %s", message.getAuthor(), message.getText()));
+                String.format("Received broadcast message in chat %s from %s: %s",
+                        message.getChat(), message.getAuthor(), message.getText()));
     }
 }

@@ -1,10 +1,9 @@
 package ru.iteco.training.kafkachat.entity;
 
 import org.hibernate.annotations.GenericGenerator;
-import ru.iteco.training.kafkachat.enums.UserRole;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 
 /**
@@ -35,17 +34,10 @@ public class User {
     private String name;
 
     /**
-     * Роль пользователя
-     */
-    @Column(name = "role", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private UserRole role = UserRole.USER;
-
-    /**
      * Дата и время создания пользователя
      */
     @Column(name = "creation_timestamp", updatable = false, nullable = false)
-    private LocalDateTime creationTimestamp;
+    private Date creationTimestamp;
 
     /**
      * Признак актуальности пользователя.
@@ -80,11 +72,11 @@ public class User {
         this.name = name;
     }
 
-    public LocalDateTime getCreationTimestamp() {
+    public Date getCreationTimestamp() {
         return creationTimestamp;
     }
 
-    public void setCreationTimestamp(LocalDateTime creationTimestamp) {
+    public void setCreationTimestamp(Date creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
 
@@ -94,13 +86,5 @@ public class User {
 
     public void setActive(Boolean active) {
         this.active = active;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public void setRole(UserRole role) {
-        this.role = role;
     }
 }
