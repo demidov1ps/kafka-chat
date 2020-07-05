@@ -33,6 +33,9 @@ public class HibernateConfig {
         cfg.addAnnotatedClass(User.class);
         cfg.addAnnotatedClass(UserGroup.class);
         cfg.addAnnotatedClass(UserRole.class);
+        cfg.addAnnotatedClass(Settings.class);
+        cfg.addAnnotatedClass(DeveloperSettings.class);
+        cfg.addAnnotatedClass(ApplicationSettings.class);
         return cfg.buildSessionFactory(serviceRegistry);
     }
 }
