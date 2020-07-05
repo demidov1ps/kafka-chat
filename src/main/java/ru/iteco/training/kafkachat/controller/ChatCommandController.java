@@ -2,9 +2,9 @@ package ru.iteco.training.kafkachat.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import ru.iteco.training.kafkachat.controller.event.ChatCommandEvent;
@@ -15,7 +15,7 @@ public class ChatCommandController {
     @Autowired
     private ConsoleCommandReader reader;
     @Autowired
-    private ApplicationContext context;
+    private AbstractApplicationContext context;
 
     @Value("${user.login}")
     private String user;
@@ -28,5 +28,8 @@ public class ChatCommandController {
             command = reader.nextLine();
             context.publishEvent(new ChatCommandEvent(command));
         }
+
+        context.stop();
+        context.close();
     }
 }

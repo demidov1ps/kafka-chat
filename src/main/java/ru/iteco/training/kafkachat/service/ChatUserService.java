@@ -8,6 +8,11 @@ import ru.iteco.training.kafkachat.entity.User;
 import ru.iteco.training.kafkachat.repository.ChatUserRepository;
 import ru.iteco.training.kafkachat.repository.UserRepository;
 
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Service
 public class ChatUserService {
     @Autowired
@@ -38,6 +43,26 @@ public class ChatUserService {
             chatUserRepository.save(session, chatUser);
 
             return null;
+        });
+    }
+
+    public Set<String> getChatUsersLogins(UUID chatId) {
+        return hibernateService.withSession(session -> {
+            List<ChatUser> chatUsers = chatUserRepository.findByChatId(session, chatId);
+            List<UUID> userIds = chatUsers.stream().map(ChatUser::getUserId).collect(Collectors.toList());
+            List<User> users = userRepository.findByIds(session, userIds);
+            // TODO добавить пользователей из группы
+            return users.stream().map(User::getLogin).collect(Collectors.toSet());
+        });
+    }
+
+    public Set<UUID> getChatUsersIds(UUID chatId) {
+        return hibernateService.withSession(session -> {
+            List<ChatUser> chatUsers = chatUserRepository.findByChatId(session, chatId);
+            List<UUID> userIds = chatUsers.stream().map(ChatUser::getUserId).collect(Collectors.toList());
+            List<User> users = userRepository.findByIds(session, userIds);
+            // TODO добавить пользователей из группы
+            return users.stream().map(User::getId).collect(Collectors.toSet());
         });
     }
 }

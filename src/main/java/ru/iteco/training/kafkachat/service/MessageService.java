@@ -9,6 +9,7 @@ import ru.iteco.training.kafkachat.model.ChatMessage;
 import ru.iteco.training.kafkachat.repository.ChatUserRepository;
 import ru.iteco.training.kafkachat.repository.MessageRepository;
 import ru.iteco.training.kafkachat.repository.UserRepository;
+import ru.iteco.training.kafkachat.sender.MessageSender;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class MessageService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private KafkaTemplate kafkaTemplate;
+    private MessageSender messageSender;
 
     public void sendMessage(String chatName, String text) {
         ChatMessage message = new ChatMessage();
@@ -49,14 +50,7 @@ public class MessageService {
             dbMessage.setText(text);
             messageRepository.save(session, dbMessage);
 
-            if (chatRoom.getPrivateChat()) {
-                Set<String> receivers = getChatUsers(session, chatRoom.getId());
-                for (String receiver : receivers) {
-                    kafkaTemplate.send("topic.private." + receiver, message);
-                }
-            } else {
-                kafkaTemplate.send("topic.broadcast", message);
-            }
+            messageSender.send(message, chatRoom);
 
             return null;
         });
@@ -81,13 +75,5 @@ public class MessageService {
 
            return result;
         });
-    }
-
-    private Set<String> getChatUsers(Session session, UUID chatId) {
-        List<ChatUser> chatUsers = chatUserRepository.findByChatId(session, chatId);
-        List<UUID> userIds = chatUsers.stream().map(ChatUser::getUserId).collect(Collectors.toList());
-        List<User> users = userRepository.findByIds(session, userIds);
-        // TODO добавить пользователей из группы
-        return users.stream().map(User::getLogin).collect(Collectors.toSet());
     }
 }
