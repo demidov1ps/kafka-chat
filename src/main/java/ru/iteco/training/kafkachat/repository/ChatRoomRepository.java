@@ -1,41 +1,21 @@
 package ru.iteco.training.kafkachat.repository;
 
-import org.hibernate.Criteria;
-import org.hibernate.Session;
-import org.hibernate.criterion.*;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import ru.iteco.training.kafkachat.entity.ChatRoom;
-import ru.iteco.training.kafkachat.entity.ChatUser;
 
 import java.util.List;
 import java.util.UUID;
 
-@Repository
-public class ChatRoomRepository extends AbstractRepository<ChatRoom, UUID> {
+public interface ChatRoomRepository extends CrudRepository<ChatRoom, UUID> {
 
-    public List<ChatRoom> getPrivateChatRoomsForUser(Session session, UUID userId) {
-        DetachedCriteria subCriteria = DetachedCriteria.forClass(ChatUser.class);
-        subCriteria.add(Restrictions.eq("userId", userId));
-        subCriteria.setProjection(Projections.property("chatId"));
+    @Query("SELECT cr FROM ChatRoom cr WHERE cr.privateChat = true "
+            + " and cr.id IN (SELECT chatId FROM ChatUser cu WHERE cu.userId = :userId) "
+            + " ORDER BY cr.name")
+    List<ChatRoom> findPrivateChatRoomsForUser(@Param("userId") UUID userId);
 
-        Criteria criteria = session.createCriteria(ChatRoom.class);
-        criteria.add(Restrictions.eq("privateChat", true));
-        criteria.add(Subqueries.propertyIn("id", subCriteria));
-        criteria.addOrder(Order.asc("name"));
-        return criteria.list();
-    }
+    List<ChatRoom> findByPrivateChatFalse();
 
-    public List<ChatRoom> getPublicChatRooms(Session session) {
-        Criteria criteria = session.createCriteria(ChatRoom.class);
-        criteria.add(Restrictions.eq("privateChat", false));
-        criteria.addOrder(Order.asc("name"));
-        return criteria.list();
-    }
-
-    public ChatRoom findByName(Session session, String name) {
-        Criteria criteria = session.createCriteria(ChatRoom.class);
-        criteria.add(Restrictions.eq("name", name));
-        List<ChatRoom> result = criteria.list();
-        return result.isEmpty() ? null : result.get(0);
-    }
+    ChatRoom findByName(String name);
 }

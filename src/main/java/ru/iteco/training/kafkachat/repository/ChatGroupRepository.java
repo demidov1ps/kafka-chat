@@ -1,10 +1,9 @@
 package ru.iteco.training.kafkachat.repository;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.CrudRepository;
 import ru.iteco.training.kafkachat.entity.ChatGroup;
 import ru.iteco.training.kafkachat.entity.ChatGroupId;
 
-@Repository
-public class ChatGroupRepository extends AbstractRepository<ChatGroup, ChatGroupId> {
+public interface ChatGroupRepository extends CrudRepository<ChatGroup, ChatGroupId> {
 
 }

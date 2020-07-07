@@ -1,9 +1,8 @@
 package ru.iteco.training.kafkachat.service;
 
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.iteco.training.kafkachat.entity.*;
 import ru.iteco.training.kafkachat.model.ChatMessage;
 import ru.iteco.training.kafkachat.repository.ChatUserRepository;
@@ -12,12 +11,9 @@ import ru.iteco.training.kafkachat.repository.UserRepository;
 import ru.iteco.training.kafkachat.sender.MessageSender;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class MessageService {
-    @Autowired
-    private HibernateService hibernateService;
     @Autowired
     private UserService userService;
     @Autowired
@@ -31,49 +27,44 @@ public class MessageService {
     @Autowired
     private MessageSender messageSender;
 
+    @Transactional
     public void sendMessage(String chatName, String text) {
         ChatMessage message = new ChatMessage();
         message.setChat(chatName);
         message.setAuthor(userService.getCurrentUser().getLogin());
         message.setText(text);
 
-        hibernateService.withTransaction(session -> {
-            ChatRoom chatRoom = chatRoomService.getChatIfAvailable(chatName);
-            if (chatRoom == null) {
-                return null;
-            }
+        ChatRoom chatRoom = chatRoomService.getChatIfAvailable(chatName);
+        if (chatRoom == null) {
+            return;
+        }
 
-            Message dbMessage = new Message();
-            dbMessage.setAuthorUserId(userService.getCurrentUser().getId());
-            dbMessage.setChatRoomId(chatRoom.getId());
-            dbMessage.setCreationTimestamp(new Date());
-            dbMessage.setText(text);
-            messageRepository.save(session, dbMessage);
+        Message dbMessage = new Message();
+        dbMessage.setAuthorUserId(userService.getCurrentUser().getId());
+        dbMessage.setChatRoomId(chatRoom.getId());
+        dbMessage.setCreationTimestamp(new Date());
+        dbMessage.setText(text);
+        messageRepository.save(dbMessage);
 
-            messageSender.send(message, chatRoom);
-
-            return null;
-        });
+        messageSender.send(message, chatRoom);
     }
 
     public List<ChatMessage> getMessagesForChat(String chatName) {
-        return hibernateService.withSession(session -> {
-           ChatRoom chatRoom = chatRoomService.getChatIfAvailable(chatName);
-           if (chatRoom == null) {
-               return new ArrayList<>();
-           }
-           List<Message> messages = messageRepository.findByChatRoomId(session, chatRoom.getId());
-           List<ChatMessage> result = new ArrayList<>();
-           for (Message message : messages) {
-               ChatMessage cm = new ChatMessage();
-               cm.setChat(chatName);
-               cm.setText(message.getText());
-               cm.setCreationTimestamp(message.getCreationTimestamp());
-               cm.setAuthor(userRepository.findOne(session, message.getAuthorUserId()).getLogin());
-               result.add(cm);
-           }
+        ChatRoom chatRoom = chatRoomService.getChatIfAvailable(chatName);
+        if (chatRoom == null) {
+            return new ArrayList<>();
+        }
+        List<Message> messages = messageRepository.findByChatRoomIdOrderByCreationTimestamp(chatRoom.getId());
+        List<ChatMessage> result = new ArrayList<>();
+        for (Message message : messages) {
+            ChatMessage cm = new ChatMessage();
+            cm.setChat(chatName);
+            cm.setText(message.getText());
+            cm.setCreationTimestamp(message.getCreationTimestamp());
+            userRepository.findById(message.getAuthorUserId()).ifPresent(user -> cm.setAuthor(user.getLogin()));
+            result.add(cm);
+        }
 
-           return result;
-        });
+        return result;
     }
 }
